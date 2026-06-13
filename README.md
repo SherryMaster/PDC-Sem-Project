@@ -119,6 +119,18 @@ This creates 20 images in `test_frames/` with random geometric shapes (rectangle
 
 ---
 
+## Architecture
+
+The C backend is split into focused modules:
+
+| Module | Responsibility |
+|--------|---------------|
+| `ppm.c` | PPM file I/O: reading, writing, memory management, directory scanning |
+| `sobel.c` | Sobel 3x3 edge detection: grayscale conversion, convolution kernel, magnitude calculation |
+| `system_info.c` | Hardware introspection: CPU model/cores, memory, kernel version, compiler info |
+| `report.c` | Benchmark output: formatted tables, speedup analysis, system info display |
+| `analyzer.c` | Glue layer: CLI parsing, mode dispatch (sequential/pthreads/openmp), thread worker, `main()` |
+
 ## Notes
 
 - All three modes call the same `process_single_frame()` function per image, so output is identical regardless of execution strategy.
@@ -137,8 +149,8 @@ This creates 20 images in `test_frames/` with random geometric shapes (rectangle
 ## Makefile Targets
 
 ```
-make           Build the CLI binary (default)
-make clean     Remove binary, test frames, and output directory
+make           Build all modules and link into bin/frame_analyzer (default)
+make clean     Remove object files, binary, test frames, and output directory
 make generate  Generate 20 P3 PPM test frames (512x512) in test_frames/
 make benchmark Build + run all 3 modes with comparison report
 make gui       Build + launch the Python GUI
@@ -151,9 +163,17 @@ make gui       Build + launch the Python GUI
 ```
 .
 ├── src/
-│   └── analyzer.c          # C backend: PPM I/O, Sobel convolution, 3 modes, benchmarking
+│   ├── analyzer.c           # Main entry point: CLI parsing, mode orchestration, thread worker
+│   ├── ppm.c                # PPM image I/O (read, write, free, directory listing)
+│   ├── sobel.c              # Sobel 3x3 edge detection convolution
+│   ├── system_info.c        # System info gathering (/proc/cpuinfo, /proc/meminfo)
+│   └── report.c             # Benchmark report printing and timing utilities
 ├── include/
-│   └── analyzer.h           # Structs (PPMImage, ThreadArg, SystemInfo, BenchmarkResult)
+│   ├── analyzer.h           # Aggregator header: includes all below + FrameJob, ThreadArg
+│   ├── ppm.h                # PPMImage struct and I/O declarations
+│   ├── sobel.h              # apply_sobel declaration
+│   ├── system_info.h        # SystemInfo struct and get_system_info
+│   └── report.h             # BenchmarkResult struct and print functions
 ├── gui.py                   # Tkinter GUI with 3 tabs and cyberpunk theme
 ├── scripts/
 │   └── generate_frames.py   # Test frame generator (random geometric shapes)

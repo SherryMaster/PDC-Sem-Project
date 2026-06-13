@@ -2,19 +2,23 @@ CC = gcc
 CFLAGS = -O3 -Wall -Wextra
 LDFLAGS = -fopenmp -lpthread -lm
 TARGET = bin/frame_analyzer
-SRC = src/analyzer.c
+SRCS = src/analyzer.c src/ppm.c src/sobel.c src/system_info.c src/report.c
+OBJS = $(SRCS:.c=.o)
 INC = -Iinclude
 
 .PHONY: all clean gui generate benchmark
 
 all: $(TARGET)
 
-$(TARGET): $(SRC) include/analyzer.h
+$(TARGET): $(OBJS)
 	@mkdir -p bin
-	$(CC) $(CFLAGS) $(INC) $(SRC) -o $(TARGET) $(LDFLAGS)
+	$(CC) $(OBJS) -o $(TARGET) $(LDFLAGS)
+
+src/%.o: src/%.c include/analyzer.h include/ppm.h include/sobel.h include/system_info.h include/report.h
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
 clean:
-	rm -f $(TARGET)
+	rm -f $(OBJS) $(TARGET)
 	rm -rf test_frames/*.ppm
 	rm -rf test_frames_output
 
