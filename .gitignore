@@ -1,0 +1,29 @@
+# C build artifacts
+*.o
+*.out
+*.exe
+*.obj
+
+# Binary output
+bin/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Test data & output
+test_frames/
+test_frames_output/
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
